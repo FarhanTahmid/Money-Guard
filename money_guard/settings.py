@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)#d4*rcb1u-67=e)+)ekzvhj7#78^0ikg_tk!o%5msgt#-6nh$'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if(os.environ.get('ENVIRONMENT')== 'dev'):
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = []
+if(os.environ.get('ENVIRONMENT')=='dev'):
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -54,7 +63,7 @@ ROOT_URLCONF = 'money_guard.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,12 +82,38 @@ WSGI_APPLICATION = 'money_guard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if(os.environ.get('ENVIRONMENT')=='dev'):
+    DATABASES = {
+        'default': {
+                    
+            #Postgres in localhost
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DEV_DATABASE_NAME'),
+            'USER': os.environ.get('DEV_DATABASE_USER'),
+            'PASSWORD': os.environ.get('DEV_DATABASE_PASSWORD'),
+            'HOST': os.environ.get('DEV_DATABASE_HOST'),
+            'PORT':'', 
+            
+
+        }
     }
-}
+if(os.environ.get('ENVIRONMENT')=='prod'):
+    pass
+    # DATABASES = {
+        
+    #     # MySQL in Production
+    #     'default': {
+            
+    #         'ENGINE': 'django.db.backends.mysql', 
+    #         'NAME': os.environ.get('PROD_DATABASE_NAME'),
+    #         'USER': os.environ.get('PROD_DATABASE_USER'),
+    #         'PASSWORD': os.environ.get('PROD_DATABASE_PASSWORD'),
+    #         'HOST': os.environ.get('PROD_DATABASE_HOST'),
+    #         'PORT': '3306',
+            
+    #     }
+        
+    # }
 
 
 # Password validation
@@ -105,17 +140,27 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
 USE_TZ = True
+
+#Date input Formats in the models
+DATE_INPUT_FORMATS = ['%d-%m-%Y']
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+#static directory
+STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
+STATICFIlES_DIRS=(os.path.join(BASE_DIR,'static/'))
+
+#Media Files
+MEDIA_ROOT= os.path.join(BASE_DIR, 'Media Files/')
+MEDIA_URL= "/media_files/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
